@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using OpsReady.Models;
 using WebApi.Entities;
 using WebApi.Helpers;
 
@@ -13,16 +14,16 @@ namespace WebApi.Services
 {
     public interface IUserService
     {
-        User Authenticate(string username, string password);
-        IEnumerable<User> GetAll();
+        UserModel.User Authenticate(string username, string password);
+        IEnumerable<UserModel.User> GetAll();
     }
 
     public class UserService : IUserService
     {
         // users hardcoded for simplicity, store in a db with hashed passwords in production applications
-        private List<User> _users = new List<User>
+        private List<UserModel.User> _users = new List<UserModel.User>
         { 
-            new User { Id = 1, FirstName = "Test", LastName = "User", Username = "test", Password = "test" } 
+            new UserModel.User { Id = 1, FirstName = "Test", LastName = "User", UserName = "test", Password = "test" } 
         };
 
         private readonly AppSettings _appSettings;
@@ -32,9 +33,9 @@ namespace WebApi.Services
             _appSettings = appSettings.Value;
         }
 
-        public User Authenticate(string username, string password)
+        public UserModel.User Authenticate(string username, string password)
         {
-            var user = _users.SingleOrDefault(x => x.Username == username && x.Password == password);
+            var user = _users.SingleOrDefault(x => x.UserName == username && x.Password == password);
 
             // return null if user not found
             if (user == null)
@@ -61,7 +62,7 @@ namespace WebApi.Services
             return user;
         }
 
-        public IEnumerable<User> GetAll()
+        public IEnumerable<UserModel.User> GetAll()
         {
             // return users without passwords
             return _users.Select(x => {

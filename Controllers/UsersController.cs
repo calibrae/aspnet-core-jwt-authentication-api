@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using MessagePack;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using OpsReady.Models;
 using WebApi.Services;
 using WebApi.Entities;
 
@@ -19,9 +22,9 @@ namespace WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]User userParam)
+        public IActionResult Authenticate([FromBody]UserModel.User userParam)
         {
-            var user = _userService.Authenticate(userParam.Username, userParam.Password);
+            var user = _userService.Authenticate(userParam.UserName, userParam.Password);
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -32,8 +35,10 @@ namespace WebApi.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var users =  _userService.GetAll();
-            return Ok(users);
+            var users = _userService.GetAll();
+            var mp = MessagePackSerializer.Serialize(users, MessagePack.Resolvers.ContractlessStandardResolver.Instance);
+            var str = Convert.ToBase64String(mp);
+            return Ok(str);
         }
     }
 }
