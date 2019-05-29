@@ -2,9 +2,9 @@
 using MessagePack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using OpsReady.DAL.Models.User;
 using OpsReady.Models;
 using WebApi.Services;
-using WebApi.Entities;
 
 namespace WebApi.Controllers
 {
@@ -22,9 +22,9 @@ namespace WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]UserModel.User userParam)
+        public IActionResult Authenticate([FromBody]User userParam)
         {
-            var user = _userService.Authenticate(userParam.UserName, userParam.Password);
+            var user = _userService.Authenticate(userParam.PersonalNumber, userParam.HashedPassword);
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });

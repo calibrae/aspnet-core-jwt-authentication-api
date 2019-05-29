@@ -6,36 +6,35 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using OpsReady.Models;
-using WebApi.Entities;
+using OpsReady.DAL.Models.User;
 using WebApi.Helpers;
 
 namespace WebApi.Services
 {
     public interface IUserService
     {
-        UserModel.User Authenticate(string username, string password);
-        IEnumerable<UserModel.User> GetAll();
+        IUserModel Authenticate(string username, string password);
+        IEnumerable<IUserModel> GetAll();
     }
 
     public class UserService : IUserService
     {
-        // users hardcoded for simplicity, store in a db with hashed passwords in production applications
-        private List<UserModel.User> _users = new List<UserModel.User>
-        { 
-            new UserModel.User { Id = 1, FirstName = "Test", LastName = "User", UserName = "test", Password = "test" } 
-        };
-
         private readonly AppSettings _appSettings;
+
+        // users hardcoded for simplicity, store in a db with hashed passwords in production applications
+        private readonly List<IUserModel> _users = new List<IUserModel>
+        {
+            new User {Id = 1, FirstName = "Test", LastName = "User", PersonalNumber = "test", HashedPassword = "test"}
+        };
 
         public UserService(IOptions<AppSettings> appSettings)
         {
             _appSettings = appSettings.Value;
         }
 
-        public UserModel.User Authenticate(string username, string password)
+        public IUserModel Authenticate(string username, string password)
         {
-            var user = _users.SingleOrDefault(x => x.UserName == username && x.Password == password);
+            var user = _users.SingleOrDefault(x => x.PersonalNumber == username && x.HashedPassword == password);
 
             // return null if user not found
             if (user == null)
@@ -46,27 +45,29 @@ namespace WebApi.Services
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[] 
+                Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Name, user.Id.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             user.Token = tokenHandler.WriteToken(token);
 
             // remove password before returning
-            user.Password = null;
+            user.HashedPassword = null;
 
             return user;
         }
 
-        public IEnumerable<UserModel.User> GetAll()
+        public IEnumerable<IUserModel> GetAll()
         {
             // return users without passwords
-            return _users.Select(x => {
-                x.Password = null;
+            return _users.Select(x =>
+            {
+                x.HashedPassword = null;
                 return x;
             });
         }
