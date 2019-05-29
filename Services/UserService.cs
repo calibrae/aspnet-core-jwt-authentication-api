@@ -15,6 +15,8 @@ namespace WebApi.Services
     {
         IUserModel Authenticate(string username, string password);
         IEnumerable<IUserModel> GetAll();
+        void SendTokenByMail();
+        void SetPassword();
     }
 
     public class UserService : IUserService
@@ -70,6 +72,16 @@ namespace WebApi.Services
                 x.HashedPassword = null;
                 return x;
             });
+        }
+
+        public void SendTokenByMail()
+        {
+            
+        }
+
+        public void SetPassword()
+        {
+            
         }
     }
 }
