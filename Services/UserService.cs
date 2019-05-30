@@ -13,7 +13,7 @@ namespace WebApi.Services
 {
     public interface IUserService
     {
-        IUserModel Authenticate(string username, string password);
+        IUserModel Authenticate(string username);
         IEnumerable<IUserModel> GetAll();
         void SendTokenByMail();
         void SetPassword();
@@ -34,9 +34,9 @@ namespace WebApi.Services
             _appSettings = appSettings.Value;
         }
 
-        public IUserModel Authenticate(string username, string password)
+        public IUserModel Authenticate(string username)
         {
-            var user = _users.SingleOrDefault(x => x.PersonalNumber == username && x.HashedPassword == password);
+            var user = _users.SingleOrDefault(x => x.PersonalNumber == username);
 
             // return null if user not found
             if (user == null)
