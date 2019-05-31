@@ -63,10 +63,9 @@ namespace WebApi.Controllers
         {
             var reqUser = GetUserFromRequest(User);
 
-            if (reqUser == user)
+            if (reqUser.MailToken == user.MailToken && reqUser.PersonalNumber == user.PersonalNumber)
             {
                 return Ok(user);
-                
             }
 
             return Unauthorized("invalid user");
@@ -75,9 +74,8 @@ namespace WebApi.Controllers
         [HttpPost("setpassword")]
         public IActionResult SetPassword([FromBody] string password)
         {
-
             var user = GetUserFromRequest(User);
-            
+
             user.HashedPassword = password;
 
             return Ok();
@@ -91,7 +89,8 @@ namespace WebApi.Controllers
             {
                 throw new ArgumentException("User cannot be found");
             }
-            return _userService.GetAll().FirstOrDefault(i => i.Id.ToString() == userId) as User;
+
+            return _userService.Users.FirstOrDefault(i => i.Id.ToString() == userId) as User;
         }
     }
 }

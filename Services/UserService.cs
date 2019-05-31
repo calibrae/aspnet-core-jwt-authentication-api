@@ -17,6 +17,8 @@ namespace WebApi.Services
         IEnumerable<IUserModel> GetAll();
         void SendTokenByMail();
         void SetPassword();
+        
+        IEnumerable<IUserModel> Users { get; }
     }
 
     public class UserService : IUserService
@@ -24,10 +26,12 @@ namespace WebApi.Services
         private readonly AppSettings _appSettings;
 
         // users hardcoded for simplicity, store in a db with hashed passwords in production applications
-        private readonly List<IUserModel> _users = new List<IUserModel>
-        {
-            new User {Id = 1, FirstName = "Test", LastName = "User", PersonalNumber = "test", HashedPassword = "test"}
-        };
+//        private readonly List<IUserModel> _users = new List<IUserModel>
+//        {
+//            new User {Id = 1, FirstName = "Test", LastName = "User", PersonalNumber = "test", HashedPassword = "test"}
+//        };
+
+        public IEnumerable<IUserModel> Users => ListUsers.Users;
 
         public UserService(IOptions<AppSettings> appSettings)
         {
@@ -36,7 +40,7 @@ namespace WebApi.Services
 
         public IUserModel Authenticate(string username)
         {
-            var user = _users.SingleOrDefault(x => x.PersonalNumber == username);
+            var user = ListUsers.Users.SingleOrDefault(x => x.PersonalNumber == username);
 
             // return null if user not found
             if (user == null)
@@ -67,12 +71,13 @@ namespace WebApi.Services
         public IEnumerable<IUserModel> GetAll()
         {
             // return users without passwords
-            return _users.Select(x =>
+            return ListUsers.Users.Select(x =>
             {
                 x.HashedPassword = null;
                 return x;
             });
         }
+
 
         public void SendTokenByMail()
         {
@@ -83,5 +88,12 @@ namespace WebApi.Services
         {
             
         }
+    }
+
+    public class ListUsers
+    {
+        public static List<IUserModel> Users = new List<IUserModel> {
+            new User {Id = 1, FirstName = "Test", LastName = "User", PersonalNumber = "test", HashedPassword = "test"}
+        };
     }
 }
